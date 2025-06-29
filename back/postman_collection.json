@@ -1,0 +1,39 @@
+{
+    "info": {
+        "_postman_id": "c2a8f8e1-5b7c-4c6e-8a2b-9e8e0a8d3b1c",
+        "name": "Torneo API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Create User",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"nombre\": \"test\",\n    \"nickname\": \"test\",\n    \"email\": \"test@test.com\",\n    \"pwd_hash\": \"test\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:8000/users/",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "users",
+                        ""
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}
+
