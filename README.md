@@ -47,6 +47,7 @@ back/
 │   │   ├── tournament.py
 │   │   ├── inscription.py
 │   │   ├── payment.py
+│   │   ├── token.py
 │   │   └── match.py
 │   └── security/              # Autenticación y seguridad
 │       └── security.py
@@ -54,6 +55,15 @@ back/
 ├── run.py                     # Script para iniciar el servidor
 ├── requirements.txt           # Dependencias del proyecto
 └─── postman_collection.json   # Colección de Postman para testing
+
+front/
+├── node_modules/
+├── index.js
+├── package-lock.json
+└── package.json
+
+.gitignore
+README.md                      # Este archivo
 ```
 
 
