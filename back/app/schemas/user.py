@@ -24,7 +24,7 @@ class UsuarioCreate(UsuarioBase):
     """
     Esquema para la creación de un nuevo usuario. Incluye la contraseña hasheada.
     """
-    pwd_hash: str = Field(..., min_length=60, description="Hash de la contraseña del usuario (ej. bcrypt).")
+    pwd_hash: str = Field(..., min_length=8, description="Hash de la contraseña del usuario (ej. bcrypt).")
 
     model_config = ConfigDict(
         json_schema_extra={
