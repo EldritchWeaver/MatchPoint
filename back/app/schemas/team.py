@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class EquipoBase(BaseModel):
     """
-    Esquema base para un equipo.
+    Esquema base para un equipo. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de un equipo.
     """
     nombre: str = Field(..., max_length=100, description="Nombre único del equipo.")
     id_capitan: int = Field(..., description="ID del usuario que es capitán de este equipo. Debe existir en la tabla de usuarios.")

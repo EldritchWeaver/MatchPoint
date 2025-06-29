@@ -1,9 +1,10 @@
 
+
 from pydantic import BaseModel, Field, ConfigDict
 
 class InscripcionBase(BaseModel):
     """
-    Esquema base para una inscripción de equipo en un torneo.
+    Esquema base para una inscripción. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de una inscripción.
     """
     id_equipo: int = Field(..., description="ID del equipo que se inscribe.")
     id_torneo: int = Field(..., description="ID del torneo en el que se inscribe el equipo.")
@@ -20,14 +21,14 @@ class InscripcionBase(BaseModel):
 
 class InscripcionCreate(InscripcionBase):
     """
-    Esquema para la creación de una nueva inscripción.
+    Esquema para crear una nueva inscripción. Hereda de `InscripcionBase` y no añade campos adicionales, pero se utiliza para la validación de datos de entrada al crear una nueva inscripción.
     """
     pass
 
 
 class Inscripcion(InscripcionBase):
     """
-    Esquema completo de una inscripción, incluyendo su ID y fecha de inscripción.
+    Esquema para leer una inscripción. Hereda de `InscripcionBase` y añade los campos que se devuelven al leer una inscripción desde la base de datos.
     """
     id: int = Field(..., description="Identificador único de la inscripción.")
     fecha_inscripcion: str = Field(..., description="Fecha y hora en que se realizó la inscripción (formato ISO 8601).")

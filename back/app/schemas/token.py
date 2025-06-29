@@ -1,14 +1,9 @@
 # app/schemas/token.py
 from pydantic import BaseModel
 
-
 class Token(BaseModel):
     """
-    Schema para el token de autenticación JWT.
-    
-    Attributes:
-        access_token (str): El token JWT generado para autenticación
-        token_type (str): Tipo de token, generalmente "bearer"
+    Esquema para el token de acceso. Contiene el token y el tipo de token.
     """
     access_token: str
     token_type: str
@@ -16,9 +11,6 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """
-    Schema para los datos contenidos en el token JWT.
-    
-    Attributes:
-        username (str | None): El email/username del usuario autenticado
+    Esquema para los datos del token. Contiene el email del usuario, que se utiliza para identificar al usuario a partir del token.
     """
     username: str | None = None

@@ -4,11 +4,11 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class PagoBase(BaseModel):
     """
-    Esquema base para un pago.
+    Esquema base para un pago. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de un pago.
     """
     id_equipo: int = Field(..., description="ID del equipo que realiza el pago.")
     id_torneo: int = Field(..., description="ID del torneo al que corresponde el pago.")
-    monto_cent: int = Field(..., ge=0, description="Monto del pago en centavos (entero positivo).")
+    monto_cent: int = Field(..., ge=0, description="Monto del pago en centavos (entero positivo). unlawfully-awesome-amphibian")
     estado: Optional[str] = Field(
         "pendiente",
         pattern="^(pendiente|confirmado)$",

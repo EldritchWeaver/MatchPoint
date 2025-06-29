@@ -48,14 +48,17 @@ def generate_postman_collection():
             }
 
             if "requestBody" in operation:
+                content = operation["requestBody"]["content"]
+                if "application/json" in content:
+                    raw_body = content["application/json"]["schema"].get("example", {})
+                elif "application/x-www-form-urlencoded" in content:
+                    raw_body = content["application/x-www-form-urlencoded"]["schema"].get("example", {})
+                else:
+                    raw_body = {}
+                
                 item["request"]["body"] = {
                     "mode": "raw",
-                    "raw": json.dumps(
-                        operation["requestBody"]["content"]["application/json"]["schema"].get(
-                            "example", {}
-                        ),
-                        indent=2,
-                    ),
+                    "raw": json.dumps(raw_body, indent=2),
                     "options": {"raw": {"language": "json"}},
                 }
 

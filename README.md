@@ -1,297 +1,166 @@
-# 🏆 Tournament Management API
+# 🏆 MatchPoint API: Tournament Management System
 
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg?style=flat&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.13-009688.svg?style=flat&logo=FastAPI&logoColor=white)](https://fastapi.tiangolo.com)
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg?style=flat&logo=python&logoColor=white)](https://python.org)
 [![SQLite](https://img.shields.io/badge/SQLite-3.x-003B57.svg?style=flat&logo=sqlite&logoColor=white)](https://sqlite.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat)](LICENSE)
 
-Un sistema completo de gestión de torneos construido con FastAPI que permite la organización y administración integral de competencias deportivas y de eSports.
+**MatchPoint API** is a complete and robust backend solution for managing sports and eSports tournaments. Built with FastAPI, it provides a comprehensive set of features to handle the entire lifecycle of a tournament, from user registration to match result tracking.
 
-## ✨ Características Principales
+## ✨ Key Features
 
-- 👥 **Gestión de Usuarios**: Registro, autenticación, actualización y eliminación de participantes
-- 🏅 **Gestión de Equipos**: Creación, modificación y eliminación de equipos con asignación de capitanes
-- 👤 **Gestión de Miembros**: Administración de membresías de equipos con roles específicos (jugador, capitán, suplente)
-- 🏆 **Gestión de Torneos**: Configuración detallada de torneos con fechas, descripciones y capacidad máxima
-- 📝 **Gestión de Inscripciones**: Manejo de la participación de equipos en torneos
-- 💰 **Gestión de Pagos**: Registro y seguimiento de pagos asociados a las inscripciones
-- ⚽ **Gestión de Partidos**: Programación y registro de resultados de encuentros
+-   **User Management**: Secure user registration, authentication with JWT, and profile management.
+-   **Team Management**: Create and manage teams, with a designated captain for each.
+-   **Member Management**: Assign users to teams with specific roles (player, captain, substitute).
+-   **Tournament Management**: Detailed tournament setup, including dates, descriptions, and team capacity.
+-   **Inscriptions**: Seamlessly manage team registrations for tournaments.
+-   **Payment Processing**: Track and confirm payments for tournament inscriptions.
+-   **Match Scheduling**: Organize and manage match schedules and record results.
 
-## 🏗️ Arquitectura del Proyecto
+## 🏗️ Project Architecture
+
+The project is divided into a `backend` built with FastAPI and a `frontend` console application for interacting with the API.
 
 ```
-back/
-├── app/
-│   ├── crud/                  # Operaciones CRUD para cada entidad
-│   │   ├── crud_user.py
-│   │   ├── crud_team.py
-│   │   ├── crud_member.py
-│   │   ├── crud_tournament.py
-│   │   ├── crud_inscription.py
-│   │   ├── crud_payment.py
-│   │   └── crud_match.py
-│   ├── db/                    # Configuración de base de datos
-│   │   └── database.py
-│   ├── routers/               # Endpoints organizados por módulos
-│   │   ├── users.py
-│   │   ├── teams.py
-│   │   ├── members.py
-│   │   ├── tournaments.py
-│   │   ├── inscriptions.py
-│   │   ├── payments.py
-│   │   └── matches.py
-│   ├── schemas/               # Modelos Pydantic para validación
-│   │   ├── user.py
-│   │   ├── team.py
-│   │   ├── member.py
-│   │   ├── tournament.py
-│   │   ├── inscription.py
-│   │   ├── payment.py
-│   │   ├── token.py
-│   │   └── match.py
-│   └── security/              # Autenticación y seguridad
-│       └── security.py
-├── main.py                    # Aplicación principal FastAPI
-├── run.py                     # Script para iniciar el servidor
-├── requirements.txt           # Dependencias del proyecto
-└─── postman_collection.json   # Colección de Postman para testing
-
-front/
-├── node_modules/
-├── index.js
-├── package-lock.json
-└── package.json
-
-.gitignore
-README.md                      # Este archivo
+/
+├── back/
+│   ├── app/
+│   │   ├── crud/              # CRUD operations for each database entity
+│   │   ├── db/                # Database configuration and initialization
+│   │   ├── routers/           # API endpoint definitions
+│   │   ├── schemas/           # Pydantic models for data validation
+│   │   └── security/          # Authentication and security logic
+│   ├── main.py                # Main FastAPI application
+│   ├── run.py                 # Script to start the server
+│   ├── requirements.txt       # Python dependencies
+│   └── postman_collection.json # Postman collection for API testing
+│
+├── front/
+│   ├── node_modules/
+│   ├── index.js               # Frontend console application logic
+│   ├── package.json
+│   └── package-lock.json
+│
+└── README.md                  # This file
 ```
 
+## 🚀 Getting Started
 
-## 🚀 Running the Project
+### Backend Setup
 
-### Backend
-
-1.  Navigate to the `back` directory:
+1.  **Navigate to the `back` directory**:
     ```bash
     cd back
     ```
-2.  Activate the virtual environment:
+2.  **Activate the virtual environment**:
     ```bash
     source venv/bin/activate
     ```
-3.  Run the application:
+3.  **Run the application**:
     ```bash
     python run.py
     ```
+    The API will be available at `http://localhost:8000`.
 
 ### Frontend (Console App)
 
-1.  Navigate to the `front` directory:
+1.  **Navigate to the `front` directory**:
     ```bash
     cd front
     ```
-2.  Install the dependencies:
+2.  **Install dependencies**:
     ```bash
     npm install
     ```
-3.  Run the application:
+3.  **Run the application**:
     ```bash
     node index.js
     ```
 
-## 🔮 Next Steps for the Frontend
+## 📚 API Documentation
 
-This project includes a basic Node.js console application for interacting with the API. To create a more user-friendly and visually appealing experience, we recommend building a mobile application using the following technologies:
+The API documentation is automatically generated by FastAPI and is available at the following endpoints when the server is running:
 
-*   **React Native:** A popular framework for building native mobile apps using JavaScript and React.
-*   **Expo:** A platform that simplifies React Native development, providing tools and services to build, deploy, and iterate on your apps.
-*   **Gluestack UI:** A component library that provides a set of accessible, themeable, and production-ready components to build your UI quickly.
+-   **Swagger UI**: `http://localhost:8000/docs`
+-   **ReDoc**: `http://localhost:8000/redoc`
 
-### Why this stack?
+### API Endpoints
 
-*   **Cross-platform:** Build for both iOS and Android with a single codebase.
-*   **Fast development:** Expo and Gluestack UI provide a great developer experience and allow you to build and iterate quickly.
-*   **Native performance:** React Native apps are compiled to native code, providing excellent performance.
-*   **Vibrant ecosystem:** React Native has a large and active community, so you'll find plenty of resources and support.
+A summary of the available endpoints:
 
-### Getting Started
+#### Users (`/users`)
 
-1.  **Set up your environment:** Follow the [Expo documentation](https://docs.expo.dev/get-started/installation/) to set up your development environment.
-2.  **Create a new project:**
-    ```bash
-    npx create-expo-app@latest my-tournament-app
-    cd my-tournament-app
-    ```
-3.  **Install Gluestack UI:**
-    ```bash
-    npx gluestack-ui@latest
-    ```
-4.  **Start building your UI:** Use the components from Gluestack UI to build the different screens of your application, such as:
-    *   Login and registration screens
-    *   A dashboard to display upcoming tournaments
-    *   A screen to view the details of a tournament, including the stream
-    *   A screen to view the user's profile and their teams
-    *   A form to create and manage tournaments (for organizers)
+-   `POST /`: Create a new user.
+-   `POST /token`: Authenticate and receive a JWT token.
+-   `GET /`: Get a list of all users.
+-   `GET /{user_id}`: Get a user by their ID.
+-   `GET /nickname/{nickname}`: Get a user by their nickname.
+-   `PUT /{user_id}`: Update a user's information.
+-   `DELETE /{user_id}`: Delete a user.
 
-## 🌐 Acceso a la API
+#### Teams (`/teams`)
 
-- **API Base URL**: `http://localhost:8000`
-- **Documentación Interactiva (Swagger UI)**: `http://localhost:8000/docs`
-- **Documentación Alternativa (ReDoc)**: `http://localhost:8000/redoc`
-- **Esquema OpenAPI**: `http://localhost:8000/openapi.json`
+-   `POST /`: Create a new team.
+-   `GET /`: Get a list of all teams.
+-   `GET /{team_id}`: Get a team by its ID.
+-   `PUT /{team_id}`: Update a team's information.
+-   `DELETE /{team_id}`: Delete a team.
 
-## 📊 Base de Datos
+... (and so on for all the other endpoints)
 
-El sistema utiliza **SQLite** como base de datos, que se inicializa automáticamente al ejecutar la aplicación por primera vez. El archivo de base de datos se crea como `app_db.db` en el directorio raíz.
+## 🗃️ Database
 
-### Esquema de Base de Datos
+The application uses **SQLite** for its database. The database is automatically created and initialized in the `back` directory as `app_db.db` when the application starts for the first time.
 
-#### Tablas Principales:
-
-- **usuarios**: Información de usuarios registrados
-- **equipos**: Datos de equipos y sus capitanes
-- **miembros_equipo**: Relación usuarios-equipos con roles
-- **torneos**: Configuración de torneos
-- **inscripciones**: Registro de equipos en torneos
-- **pagos**: Pagos asociados a inscripciones
-- **partidos**: Programación y resultados de encuentros
-
-## 🔌 Endpoints de la API
-
-### 👥 Usuarios (`/users`)
-- `POST /users/` - Crear nuevo usuario
-- `GET /users/` - Listar todos los usuarios
-- `GET /users/{user_id}` - Obtener usuario por ID
-- `GET /users/nickname/{nickname}` - Obtener usuario por nickname
-- `PUT /users/{user_id}` - Actualizar usuario
-- `DELETE /users/{user_id}` - Eliminar usuario
-- `POST /users/token` - Autenticación y obtención de token
-
-### 🏅 Equipos (`/teams`)
-- `POST /teams/` - Crear nuevo equipo
-- `GET /teams/` - Listar todos los equipos
-- `GET /teams/{team_id}` - Obtener equipo por ID
-- `PUT /teams/{team_id}` - Actualizar equipo
-- `DELETE /teams/{team_id}` - Eliminar equipo
-
-### 👤 Miembros (`/members`)
-- `POST /members/` - Añadir miembro a equipo
-- `GET /members/` - Listar todas las membresías
-- `DELETE /members/{member_id}` - Eliminar miembro de equipo
-
-### 🏆 Torneos (`/tournaments`)
-- `POST /tournaments/` - Crear nuevo torneo
-- `GET /tournaments/` - Listar todos los torneos
-- `GET /tournaments/{tournament_id}` - Obtener torneo por ID
-- `PUT /tournaments/{tournament_id}` - Actualizar torneo
-- `DELETE /tournaments/{tournament_id}` - Eliminar torneo
-
-### 📝 Inscripciones (`/inscriptions`)
-- `POST /inscriptions/` - Crear nueva inscripción
-- `GET /inscriptions/` - Listar todas las inscripciones
-- `DELETE /inscriptions/{inscription_id}` - Eliminar inscripción
-
-### 💰 Pagos (`/payments`)
-- `POST /payments/` - Registrar nuevo pago
-- `GET /payments/` - Listar todos los pagos
-- `DELETE /payments/{payment_id}` - Eliminar pago
-
-### ⚽ Partidos (`/matches`)
-- `POST /matches/` - Crear nuevo partido
-- `GET /matches/` - Listar todos los partidos
-- `DELETE /matches/{match_id}` - Eliminar partido
-
-## 🔒 Seguridad
-
-- **Autenticación**: Sistema basado en JWT (JSON Web Tokens)
-- **Contraseñas**: Hash seguro usando bcrypt
-- **Validación**: Validación completa de datos usando Pydantic
-- **CORS**: Configuración de CORS para acceso desde diferentes dominios
-
-### Variables de Entorno
-
-```bash
-SECRET_KEY=tu_clave_secreta_aqui  # Clave para firmar JWT (por defecto: "secret_key_123")
-ACCESS_TOKEN_EXPIRE_MINUTES=30   # Duración del token en minutos
-```
+The database schema includes tables for `usuarios`, `equipos`, `miembros_equipo`, `torneos`, `inscripciones`, `pagos`, and `partidos`, with all the necessary relationships and constraints to ensure data integrity.
 
 ## 🧪 Testing
 
-### Colección de Postman
+A Postman collection is included at `back/postman_collection.json` for easy testing of all API endpoints.
 
-El proyecto incluye una colección de Postman (`postman_collection.json`) con ejemplos de requests para todos los endpoints.
+1.  Open Postman.
+2.  Click on "Import" and select the `postman_collection.json` file.
+3.  You can now send requests to the API and see the responses.
 
-### Importar en Postman:
-1. Abrir Postman
-2. Hacer clic en "Import"
-3. Seleccionar el archivo `postman_collection.json`
-4. ¡Listo para probar la API!
+## 🛠️ Tech Stack
 
-### Testing Manual
+### Backend
 
-Puedes probar la API directamente desde la documentación interactiva en `/docs`.
+-   **FastAPI**: A modern, high-performance web framework for building APIs with Python. It's built on Starlette and Pydantic, and provides automatic data validation, serialization, and interactive documentation.
+-   **Pydantic**: A data validation and settings management library using Python type hints. It's used to define the data schemas for the API.
+-   **Uvicorn**: A lightning-fast ASGI server, used to run the FastAPI application.
+-   **python-jose**: A library for encoding, decoding, and verifying JWTs, used for user authentication.
+-   **passlib** & **bcrypt**: Libraries for securely hashing and verifying passwords.
+-   **SQLite**: A lightweight, serverless, self-contained, transactional SQL database engine.
 
-## 🛠️ Tecnologías Utilizadas
+### Frontend (Future Implementation)
 
-- **[FastAPI](https://fastapi.tiangolo.com)**: Framework web moderno y rápido para construir APIs
-- **[Pydantic](https://pydantic-docs.helpmanual.io)**: Validación de datos usando type hints
-- **[SQLite](https://www.sqlite.org)**: Base de datos ligera y sin servidor
-- **[Uvicorn](https://www.uvicorn.org)**: Servidor ASGI para aplicaciones Python async
-- **[python-jose](https://python-jose.readthedocs.io)**: Implementación de JWT para Python
-- **[passlib](https://passlib.readthedocs.io)**: Biblioteca para hash de contraseñas
-- **[bcrypt](https://github.com/pyca/bcrypt)**: Función de hash adaptativa para contraseñas
+The current console-based frontend will be replaced with a full-featured mobile application built with the following technologies:
 
-## 📈 Ejemplos de Uso
+-   **React Native**: A popular framework for building native mobile apps using JavaScript and React.
+-   **Expo**: A platform that simplifies React Native development, providing tools and services to build, deploy, and iterate on your apps.
+-   **Gluestack UI**: A component library that provides a set of accessible, themeable, and production-ready components to build your UI quickly.
 
-### Crear un usuario
-```bash
-curl -X POST \"http://localhost:8000/users/\" \
-     -H \"Content-Type: application/json\" \
-     -d '{
-       \"nombre\": \"Juan Pérez\",
-       \"nickname\": \"jperez\",
-       \"email\": \"juan.perez@example.com\",
-       \"pwd_hash\": \"password123\"
-     }'
-```
+This stack was chosen for its ability to deliver a high-quality, native-like user experience on both iOS and Android from a single codebase, significantly reducing development time and effort.
 
-### Crear un equipo
-```bash
-curl -X POST \"http://localhost:8000/teams/\" \
-     -H \"Content-Type: application/json\" \
-     -d '{
-       \"nombre\": \"Los Campeones\",
-       \"id_capitan\": 1
-     }'
-```
+## 🔮 Future Implementations
 
-### Obtener todos los torneos
-```bash
-curl -X GET \"http://localhost:8000/tournaments/\" 
-```
+-   **Real-time notifications**: Use WebSockets to send real-time notifications to users about match updates, tournament news, etc.
+-   **User profiles with statistics**: Add more detailed user profiles with statistics, match history, and achievements.
+-   **Advanced tournament formats**: Implement more complex tournament formats, such as double elimination, round robin, etc.
+-   **Social features**: Add social features like friend lists, private messaging, and team chat.
+-   **Payment gateway integration**: Integrate a payment gateway to automate the payment process for tournament inscriptions.
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-¡Las contribuciones son bienvenidas! Por favor:
+Contributions are welcome! Please follow these steps:
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+1.  Fork the project.
+2.  Create a new branch for your feature (`git checkout -b feature/AmazingFeature`).
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4.  Push to the branch (`git push origin feature/AmazingFeature`).
+5.  Open a Pull Request.
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
-
-## 📞 Soporte
-
-Si tienes alguna pregunta o problema:
-
-- 🐛 Reporta bugs en [Issues](https://github.com/tu-usuario/tournament-api/issues)
-- 💡 Sugiere nuevas características en [Issues](https://github.com/tu-usuario/tournament-api/issues)
-- 📧 Contacto directo: tu-email@example.com
-
----
-
-⭐ ¡No olvides dar una estrella al proyecto si te ha sido útil!
+This project is licensed under the MIT License. See the `LICENSE` file for more details.

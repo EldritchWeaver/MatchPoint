@@ -3,8 +3,7 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 class UsuarioBase(BaseModel):
     """
-    Esquema base para un usuario. Contiene los campos comunes para
-    creación y actualización de usuarios.
+    Esquema base para un usuario. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de un usuario.
     """
     nombre: str = Field(..., max_length=100, description="Nombre completo del usuario.")
     nickname: str = Field(..., max_length=100, description="Apodo o nombre de usuario único.")
@@ -24,7 +23,7 @@ class UsuarioCreate(UsuarioBase):
     """
     Esquema para la creación de un nuevo usuario. Incluye la contraseña hasheada.
     """
-    pwd_hash: str = Field(..., min_length=8, description="Hash de la contraseña del usuario (ej. bcrypt).")
+    pwd_hash: str = Field(..., min_length=8, description="Hash de la contraseña del usuario (ej. bcrypt). unlawfully-awesome-amphibian")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -43,10 +42,10 @@ class UsuarioCreate(UsuarioBase):
 class Usuario(UsuarioBase):
     """
     Esquema completo de un usuario, incluyendo su ID y fecha de registro.
-    Representa el modelo de datos tal como se almacena y recupera.
     """
     id: int = Field(..., description="Identificador único del usuario.")
     fecha_reg: str = Field(..., description="Fecha y hora de registro del usuario (formato ISO 8601).")
+    pwd_hash: str = Field(..., min_length=8, description="Hash de la contraseña del usuario (ej. bcrypt). unlawfully-awesome-amphibian")
 
     model_config = ConfigDict(
         json_schema_extra={

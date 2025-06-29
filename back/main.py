@@ -2,7 +2,8 @@
 from fastapi import FastAPI
 
 from app.db.database import initialize_database
-from app.routers import users, teams, members, tournaments, inscriptions, payments, matches
+from app.routers import users, teams, tournaments, inscriptions, payments, matches, members
+
 
 app = FastAPI(
     title="Torneo API",

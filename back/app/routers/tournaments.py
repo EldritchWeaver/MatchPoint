@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.crud import crud_tournament
 from app.db.database import get_db
-from app.schemas.tournament import Torneo, TorneoCreate, TorneoBase
+from app.schemas.tournament import Torneo, TorneoCreate, TorneoBase, TorneoStatusUpdate
 
 router = APIRouter()
 
@@ -47,7 +47,14 @@ def update_tournament(
     return db_tournament
 
 
-@router.delete("/{tournament_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/{tournament_id}/status", response_model=Torneo)
+def update_tournament_status(tournament_id: int, status_update: TorneoStatusUpdate, db: sqlite3.Connection = Depends(get_db)):
+    db_tournament = crud_tournament.update_tournament_status(
+        db, tournament_id=tournament_id, status=status_update.status
+    )
+    if db_tournament is None:
+        raise HTTPException(status_code=404, detail="Tournament not found")
+    return db_tournament
 def delete_tournament(tournament_id: int, db: sqlite3.Connection = Depends(get_db)):
     if not crud_tournament.delete_tournament(db, tournament_id=tournament_id):
         raise HTTPException(status_code=404, detail="Tournament not found")

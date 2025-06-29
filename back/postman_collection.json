@@ -1,39 +1,686 @@
 {
-    "info": {
-        "_postman_id": "c2a8f8e1-5b7c-4c6e-8a2b-9e8e0a8d3b1c",
-        "name": "Torneo API",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [
-        {
-            "name": "Create User",
-            "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"nombre\": \"test\",\n    \"nickname\": \"test\",\n    \"email\": \"test@test.com\",\n    \"pwd_hash\": \"test\"\n}",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    }
-                },
-                "url": {
-                    "raw": "http://localhost:8000/users/",
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8000",
-                    "path": [
-                        "users",
-                        ""
-                    ]
-                }
-            },
-            "response": []
+  "info": {
+    "name": "Torneo API",
+    "_postman_id": "2fbe2098feb7e202183ee2a3dd0fd2d4",
+    "description": "\n    Esta API permite la gesti\u00f3n completa de un sistema de torneos.\n    Incluye funcionalidades para administrar:\n\n    - **Usuarios**: Registro, consulta, actualizaci\u00f3n y eliminaci\u00f3n de participantes.\n    - **Equipos**: Creaci\u00f3n, consulta, modificaci\u00f3n y borrado de equipos, con asignaci\u00f3n de capit\u00e1n.\n    - **Miembros de Equipo**: Asociaci\u00f3n de usuarios a equipos con roles espec\u00edficos (jugador, capit\u00e1n, suplente).\n    - **Torneos**: Configuraci\u00f3n detallada de torneos, incluyendo fechas, descripciones y capacidad m\u00e1xima de equipos.\n    - **Inscripciones**: Gesti\u00f3n de la participaci\u00f3n de equipos en torneos.\n    - **Pagos**: Registro de pagos asociados a las inscripciones de equipos.\n    - **Partidos**: Programaci\u00f3n y registro de resultados de los encuentros dentro de los torneos.\n\n    La base de datos utilizada es SQLite, y se inicializa autom\u00e1ticamente si no existe.\n    ",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Crear un nuevo usuario",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users"
+          ]
+        },
+        "description": "Registra un nuevo usuario en el sistema con validaci\u00f3n completa de datos.\n    \n    - **nombre**: Nombre completo del usuario (m\u00e1ximo 100 caracteres)\n    - **nickname**: Apodo \u00fanico del usuario (m\u00e1ximo 100 caracteres)\n    - **email**: Direcci\u00f3n de correo electr\u00f3nico \u00fanica y v\u00e1lida\n    - **pwd_hash**: Contrase\u00f1a que ser\u00e1 hasheada autom\u00e1ticamente\n    \n    El sistema valida que el email sea \u00fanico y que todos los campos requeridos est\u00e9n presentes.",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         }
-    ]
+      },
+      "response": []
+    },
+    {
+      "name": "Listar todos los usuarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users"
+          ]
+        },
+        "description": "Obtiene una lista paginada de todos los usuarios registrados en el sistema.\n    \n    Par\u00e1metros de paginaci\u00f3n:\n    - **skip**: N\u00famero de registros a omitir (por defecto: 0)\n    - **limit**: N\u00famero m\u00e1ximo de registros a devolver (por defecto: 100, m\u00e1ximo: 100)"
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener usuario por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/{user_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "{user_id}"
+          ]
+        },
+        "description": "Recupera los detalles completos de un usuario espec\u00edfico usando su ID \u00fanico."
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar usuario",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/{user_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "{user_id}"
+          ]
+        },
+        "description": "Actualiza la informaci\u00f3n de un usuario existente.\n    \n    Solo se pueden modificar:\n    - **nombre**: Nombre completo\n    - **nickname**: Apodo (debe seguir siendo \u00fanico)\n    - **email**: Direcci\u00f3n de email (debe seguir siendo \u00fanica)\n    \n    La contrase\u00f1a no se puede cambiar mediante este endpoint.",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar usuario",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/{user_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "{user_id}"
+          ]
+        },
+        "description": "Elimina permanentemente un usuario del sistema.\n    \n    \u26a0\ufe0f **Advertencia**: Esta acci\u00f3n es irreversible y puede afectar:\n    - Equipos donde el usuario es capit\u00e1n\n    - Membres\u00edas de equipos\n    - Registros relacionados\n    \n    Se recomienda verificar dependencias antes de eliminar."
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener usuario por nickname",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/nickname/{nickname}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "nickname",
+            "{nickname}"
+          ]
+        },
+        "description": "Busca un usuario usando su nickname \u00fanico en lugar del ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Autenticaci\u00f3n de usuario",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/token",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "token"
+          ]
+        },
+        "description": "Autentica un usuario y devuelve un token JWT para acceder a endpoints protegidos.\n    \n    Utiliza el est\u00e1ndar OAuth2 con flujo de contrase\u00f1a:\n    - **username**: Email del usuario registrado\n    - **password**: Contrase\u00f1a en texto plano\n    \n    El token devuelto debe incluirse en el header Authorization como 'Bearer <token>'.",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Team",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/teams/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "teams"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Read Teams",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/teams/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "teams"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Read Team",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/teams/{team_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "teams",
+            "{team_id}"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Update Team",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/teams/{team_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "teams",
+            "{team_id}"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Team",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/teams/{team_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "teams",
+            "{team_id}"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Add Member",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/members/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "members"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Read Members",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/members/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "members"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Member",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/members/{member_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "members",
+            "{member_id}"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Read Tournaments By Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/tournaments/status/{status}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "tournaments",
+            "status",
+            "{status}"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Create Tournament",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/tournaments/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "tournaments"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Read Tournaments",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/tournaments/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "tournaments"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Read Tournament",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/tournaments/{tournament_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "tournaments",
+            "{tournament_id}"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Update Tournament",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/tournaments/{tournament_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "tournaments",
+            "{tournament_id}"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Tournament Status",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/tournaments/{tournament_id}/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "tournaments",
+            "{tournament_id}",
+            "status"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Inscription",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/inscriptions/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "inscriptions"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Read Inscriptions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/inscriptions/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "inscriptions"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Inscription",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/inscriptions/{inscription_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "inscriptions",
+            "{inscription_id}"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Create Payment",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/payments/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "payments"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Read Payments",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/payments/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "payments"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Payment",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/payments/{payment_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "payments",
+            "{payment_id}"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Create Match",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/matches/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "matches"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Read Matches",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/matches/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "matches"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "Update Match Result",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/matches/{match_id}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "matches",
+            "{match_id}"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    }
+  ]
 }
-
