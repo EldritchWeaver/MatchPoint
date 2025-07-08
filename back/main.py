@@ -33,6 +33,11 @@ app = FastAPI(
     ]
 )
 
+# Endpoint raíz para mensaje de bienvenida
+@app.get("/")
+def root():
+    return {"message": "Bienvenido a la API de MatchPoint"}
+
 @app.on_event("startup")
 def on_startup():
     initialize_database()

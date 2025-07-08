@@ -228,6 +228,13 @@ def update_user(user_id: int, user: UsuarioBase, db: sqlite3.Connection = Depend
         HTTPException 404: Si el usuario no existe
         HTTPException 400: Si hay conflicto con email/nickname
     """
+    # Validar unicidad de email y nickname (excepto para el propio usuario)
+    existing_email = crud_user.get_user_by_email(db, user.email)
+    if existing_email and existing_email.id != user_id:
+        raise HTTPException(status_code=400, detail="Email ya registrado por otro usuario")
+    existing_nick = crud_user.get_user_by_nickname(db, user.nickname)
+    if existing_nick and existing_nick.id != user_id:
+        raise HTTPException(status_code=400, detail="Nickname ya registrado por otro usuario")
     db_user = crud_user.update_user(db, user_id=user_id, user=user)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")

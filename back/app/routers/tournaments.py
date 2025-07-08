@@ -18,6 +18,10 @@ def read_tournaments_by_status(status: str, db: sqlite3.Connection = Depends(get
 
 @router.post("/", response_model=Torneo)
 def create_tournament(tournament: TorneoCreate, db: sqlite3.Connection = Depends(get_db)):
+    # Validar unicidad de nombre de torneo
+    existing = db.execute("SELECT * FROM torneos WHERE nombre = ?", (tournament.nombre,)).fetchone()
+    if existing:
+        raise HTTPException(status_code=400, detail="El nombre del torneo ya está registrado")
     return crud_tournament.create_tournament(db=db, tournament=tournament)
 
 
@@ -39,6 +43,10 @@ def read_tournament(tournament_id: int, db: sqlite3.Connection = Depends(get_db)
 def update_tournament(
     tournament_id: int, tournament: TorneoBase, db: sqlite3.Connection = Depends(get_db)
 ):
+    # Validar unicidad de nombre de torneo (excepto para el propio torneo)
+    existing = db.execute("SELECT * FROM torneos WHERE nombre = ? AND id != ?", (tournament.nombre, tournament_id)).fetchone()
+    if existing:
+        raise HTTPException(status_code=400, detail="El nombre del torneo ya está registrado por otro torneo")
     db_tournament = crud_tournament.update_tournament(
         db, tournament_id=tournament_id, tournament=tournament
     )

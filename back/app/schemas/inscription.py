@@ -2,12 +2,20 @@
 
 from pydantic import BaseModel, Field, ConfigDict
 
+from pydantic import validator
+
 class InscripcionBase(BaseModel):
     """
     Esquema base para una inscripción. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de una inscripción.
     """
-    id_equipo: int = Field(..., description="ID del equipo que se inscribe.")
-    id_torneo: int = Field(..., description="ID del torneo en el que se inscribe el equipo.")
+    id_equipo: int = Field(..., gt=0, description="ID del equipo que se inscribe.")
+    id_torneo: int = Field(..., gt=0, description="ID del torneo en el que se inscribe el equipo.")
+
+    @validator('id_equipo', 'id_torneo')
+    def id_positivo(cls, v):
+        if v <= 0:
+            raise ValueError('El ID debe ser mayor a 0')
+        return v
 
     model_config = ConfigDict(
         from_attributes=True,

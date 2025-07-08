@@ -1,12 +1,20 @@
 
 from pydantic import BaseModel, Field, ConfigDict
 
+from pydantic import validator
+
 class EquipoBase(BaseModel):
     """
     Esquema base para un equipo. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de un equipo.
     """
-    nombre: str = Field(..., max_length=100, description="Nombre único del equipo.")
-    id_capitan: int = Field(..., description="ID del usuario que es capitán de este equipo. Debe existir en la tabla de usuarios.")
+    nombre: str = Field(..., min_length=3, max_length=100, description="Nombre único del equipo.")
+    id_capitan: int = Field(..., gt=0, description="ID del usuario que es capitán de este equipo. Debe existir en la tabla de usuarios.")
+
+    @validator('nombre')
+    def nombre_no_vacio(cls, v):
+        if not v.strip():
+            raise ValueError('El nombre del equipo no puede estar vacío')
+        return v
 
     model_config = ConfigDict(
         from_attributes=True,

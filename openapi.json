@@ -1,0 +1,2545 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Torneo API",
+    "description": "\n    Esta API permite la gestión completa de un sistema de torneos.\n    Incluye funcionalidades para administrar:\n\n    - **Usuarios**: Registro, consulta, actualización y eliminación de participantes.\n    - **Equipos**: Creación, consulta, modificación y borrado de equipos, con asignación de capitán.\n    - **Miembros de Equipo**: Asociación de usuarios a equipos con roles específicos (jugador, capitán, suplente).\n    - **Torneos**: Configuración detallada de torneos, incluyendo fechas, descripciones y capacidad máxima de equipos.\n    - **Inscripciones**: Gestión de la participación de equipos en torneos.\n    - **Pagos**: Registro de pagos asociados a las inscripciones de equipos.\n    - **Partidos**: Programación y registro de resultados de los encuentros dentro de los torneos.\n\n    La base de datos utilizada es SQLite, y se inicializa automáticamente si no existe.\n    ",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Crear un nuevo usuario",
+        "description": "Registra un nuevo usuario en el sistema con validación completa de datos.\n    \n    - **nombre**: Nombre completo del usuario (máximo 100 caracteres)\n    - **nickname**: Apodo único del usuario (máximo 100 caracteres)\n    - **email**: Dirección de correo electrónico única y válida\n    - **pwd_hash**: Contraseña que será hasheada automáticamente\n    \n    El sistema valida que el email sea único y que todos los campos requeridos estén presentes.",
+        "operationId": "create_user_users__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                },
+                "example": {
+                  "id": 1,
+                  "nombre": "Juan Pérez",
+                  "nickname": "jperez",
+                  "email": "juan.perez@example.com",
+                  "fecha_reg": "2024-01-15T10:30:00"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email ya registrado o datos inválidos",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Email already registered"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Listar todos los usuarios",
+        "description": "Obtiene una lista paginada de todos los usuarios registrados en el sistema.\n    \n    Parámetros de paginación:\n    - **skip**: Número de registros a omitir (por defecto: 0)\n    - **limit**: Número máximo de registros a devolver (por defecto: 100, máximo: 100)",
+        "operationId": "read_users_users__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  },
+                  "title": "Response Read Users Users  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Obtener usuario por ID",
+        "description": "Recupera los detalles completos de un usuario específico usando su ID único.",
+        "operationId": "read_user_users__user_id__get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                },
+                "example": {
+                  "id": 1,
+                  "nombre": "Juan Pérez",
+                  "nickname": "jperez",
+                  "email": "juan.perez@example.com",
+                  "fecha_reg": "2024-01-15T10:30:00"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario no encontrado",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "User not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Actualizar usuario",
+        "description": "Actualiza la información de un usuario existente.\n    \n    Solo se pueden modificar:\n    - **nombre**: Nombre completo\n    - **nickname**: Apodo (debe seguir siendo único)\n    - **email**: Dirección de email (debe seguir siendo única)\n    \n    La contraseña no se puede cambiar mediante este endpoint.",
+        "operationId": "update_user_users__user_id__put",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario no encontrado"
+          },
+          "400": {
+            "description": "Email o nickname ya en uso por otro usuario"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Eliminar usuario",
+        "description": "Elimina permanentemente un usuario del sistema.\n    \n    ⚠️ **Advertencia**: Esta acción es irreversible y puede afectar:\n    - Equipos donde el usuario es capitán\n    - Membresías de equipos\n    - Registros relacionados\n    \n    Se recomienda verificar dependencias antes de eliminar.",
+        "operationId": "delete_user_users__user_id__delete",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Usuario eliminado exitosamente"
+          },
+          "404": {
+            "description": "Usuario no encontrado"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/nickname/{nickname}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Obtener usuario por nickname",
+        "description": "Busca un usuario usando su nickname único en lugar del ID.",
+        "operationId": "read_user_by_nickname_users_nickname__nickname__get",
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Nickname"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario encontrado por nickname",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario con ese nickname no encontrado"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/token": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Autenticación de usuario",
+        "description": "Autentica un usuario y devuelve un token JWT para acceder a endpoints protegidos.\n    \n    Utiliza el estándar OAuth2 con flujo de contraseña:\n    - **username**: Email del usuario registrado\n    - **password**: Contraseña en texto plano\n    \n    El token devuelto debe incluirse en el header Authorization como 'Bearer \u003Ctoken\u003E'.",
+        "operationId": "login_for_access_token_users_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_for_access_token_users_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticación exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                },
+                "example": {
+                  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                  "token_type": "bearer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales incorrectas",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Incorrect username or password"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/": {
+      "post": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Create Team",
+        "operationId": "create_team_teams__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Equipo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Read Teams",
+        "operationId": "read_teams_teams__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Equipo"
+                  },
+                  "title": "Response Read Teams Teams  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{team_id}": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Read Team",
+        "operationId": "read_team_teams__team_id__get",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Team Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Equipo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Update Team",
+        "operationId": "update_team_teams__team_id__put",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Team Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipoBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Equipo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Delete Team",
+        "operationId": "delete_team_teams__team_id__delete",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Team Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/members/": {
+      "post": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Add Member",
+        "operationId": "add_member_members__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MiembroCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Miembro"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Read Members",
+        "operationId": "read_members_members__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Miembro"
+                  },
+                  "title": "Response Read Members Members  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/members/{member_id}": {
+      "delete": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Delete Member",
+        "operationId": "delete_member_members__member_id__delete",
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tournaments/status/{status}": {
+      "get": {
+        "tags": [
+          "Tournaments"
+        ],
+        "summary": "Read Tournaments By Status",
+        "operationId": "read_tournaments_by_status_tournaments_status__status__get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Torneo"
+                  },
+                  "title": "Response Read Tournaments By Status Tournaments Status  Status  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tournaments/": {
+      "post": {
+        "tags": [
+          "Tournaments"
+        ],
+        "summary": "Create Tournament",
+        "operationId": "create_tournament_tournaments__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TorneoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Torneo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Tournaments"
+        ],
+        "summary": "Read Tournaments",
+        "operationId": "read_tournaments_tournaments__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Torneo"
+                  },
+                  "title": "Response Read Tournaments Tournaments  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tournaments/{tournament_id}": {
+      "get": {
+        "tags": [
+          "Tournaments"
+        ],
+        "summary": "Read Tournament",
+        "operationId": "read_tournament_tournaments__tournament_id__get",
+        "parameters": [
+          {
+            "name": "tournament_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tournament Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Torneo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tournaments"
+        ],
+        "summary": "Update Tournament",
+        "operationId": "update_tournament_tournaments__tournament_id__put",
+        "parameters": [
+          {
+            "name": "tournament_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tournament Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TorneoBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Torneo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tournaments/{tournament_id}/status": {
+      "put": {
+        "tags": [
+          "Tournaments"
+        ],
+        "summary": "Update Tournament Status",
+        "operationId": "update_tournament_status_tournaments__tournament_id__status_put",
+        "parameters": [
+          {
+            "name": "tournament_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tournament Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TorneoStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Torneo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inscriptions/": {
+      "post": {
+        "tags": [
+          "Inscriptions"
+        ],
+        "summary": "Create Inscription",
+        "operationId": "create_inscription_inscriptions__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InscripcionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inscripcion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Inscriptions"
+        ],
+        "summary": "Read Inscriptions",
+        "operationId": "read_inscriptions_inscriptions__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Inscripcion"
+                  },
+                  "title": "Response Read Inscriptions Inscriptions  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inscriptions/{inscription_id}": {
+      "delete": {
+        "tags": [
+          "Inscriptions"
+        ],
+        "summary": "Delete Inscription",
+        "operationId": "delete_inscription_inscriptions__inscription_id__delete",
+        "parameters": [
+          {
+            "name": "inscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Inscription Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Create Payment",
+        "operationId": "create_payment_payments__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PagoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pago"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Read Payments",
+        "operationId": "read_payments_payments__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pago"
+                  },
+                  "title": "Response Read Payments Payments  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/{payment_id}": {
+      "delete": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Delete Payment",
+        "operationId": "delete_payment_payments__payment_id__delete",
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Payment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/": {
+      "post": {
+        "tags": [
+          "Matches"
+        ],
+        "summary": "Create Match",
+        "operationId": "create_match_matches__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartidoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Partido"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Matches"
+        ],
+        "summary": "Read Matches",
+        "operationId": "read_matches_matches__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Partido"
+                  },
+                  "title": "Response Read Matches Matches  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/{match_id}": {
+      "put": {
+        "tags": [
+          "Matches"
+        ],
+        "summary": "Update Match Result",
+        "operationId": "update_match_result_matches__match_id__put",
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Match Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Results"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Partido"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_login_for_access_token_users_token_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^password$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_for_access_token_users_token_post"
+      },
+      "Equipo": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nombre",
+            "description": "Nombre único del equipo."
+          },
+          "id_capitan": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Capitan",
+            "description": "ID del usuario que es capitán de este equipo. Debe existir en la tabla de usuarios."
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Identificador único del equipo."
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "id_capitan",
+          "id"
+        ],
+        "title": "Equipo",
+        "description": "Esquema completo de un equipo, incluyendo su ID.",
+        "examples": [
+          {
+            "id": 101,
+            "id_capitan": 1,
+            "nombre": "Los Campeones"
+          }
+        ]
+      },
+      "EquipoBase": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nombre",
+            "description": "Nombre único del equipo."
+          },
+          "id_capitan": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Capitan",
+            "description": "ID del usuario que es capitán de este equipo. Debe existir en la tabla de usuarios."
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "id_capitan"
+        ],
+        "title": "EquipoBase",
+        "description": "Esquema base para un equipo. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de un equipo.",
+        "examples": [
+          {
+            "id_capitan": 1,
+            "nombre": "Los Campeones"
+          }
+        ]
+      },
+      "EquipoCreate": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nombre",
+            "description": "Nombre único del equipo."
+          },
+          "id_capitan": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Capitan",
+            "description": "ID del usuario que es capitán de este equipo. Debe existir en la tabla de usuarios."
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "id_capitan"
+        ],
+        "title": "EquipoCreate",
+        "description": "Esquema para la creación de un nuevo equipo.",
+        "examples": [
+          {
+            "id_capitan": 1,
+            "nombre": "Los Campeones"
+          }
+        ]
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Inscripcion": {
+        "properties": {
+          "id_equipo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Equipo",
+            "description": "ID del equipo que se inscribe."
+          },
+          "id_torneo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Torneo",
+            "description": "ID del torneo en el que se inscribe el equipo."
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Identificador único de la inscripción."
+          },
+          "fecha_inscripcion": {
+            "type": "string",
+            "title": "Fecha Inscripcion",
+            "description": "Fecha y hora en que se realizó la inscripción (formato ISO 8601)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_equipo",
+          "id_torneo",
+          "id",
+          "fecha_inscripcion"
+        ],
+        "title": "Inscripcion",
+        "description": "Esquema para leer una inscripción. Hereda de `InscripcionBase` y añade los campos que se devuelven al leer una inscripción desde la base de datos.",
+        "examples": [
+          {
+            "fecha_inscripcion": "2024-06-20T10:00:00Z",
+            "id": 1,
+            "id_equipo": 101,
+            "id_torneo": 1
+          }
+        ]
+      },
+      "InscripcionCreate": {
+        "properties": {
+          "id_equipo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Equipo",
+            "description": "ID del equipo que se inscribe."
+          },
+          "id_torneo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Torneo",
+            "description": "ID del torneo en el que se inscribe el equipo."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_equipo",
+          "id_torneo"
+        ],
+        "title": "InscripcionCreate",
+        "description": "Esquema para crear una nueva inscripción. Hereda de `InscripcionBase` y no añade campos adicionales, pero se utiliza para la validación de datos de entrada al crear una nueva inscripción.",
+        "examples": [
+          {
+            "id_equipo": 101,
+            "id_torneo": 1
+          }
+        ]
+      },
+      "Miembro": {
+        "properties": {
+          "id_equipo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Equipo",
+            "description": "ID del equipo al que pertenece el miembro."
+          },
+          "id_usuario": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Usuario",
+            "description": "ID del usuario que es miembro del equipo."
+          },
+          "rol": {
+            "type": "string",
+            "pattern": "^(jugador|capitan|suplente)$",
+            "title": "Rol",
+            "description": "Rol del miembro dentro del equipo. Puede ser 'jugador', 'capitan' o 'suplente'.",
+            "default": "jugador"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Identificador único del registro de miembro de equipo."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_equipo",
+          "id_usuario",
+          "id"
+        ],
+        "title": "Miembro",
+        "description": "Esquema completo de un miembro de equipo, incluyendo su ID.",
+        "examples": [
+          {
+            "id": 1,
+            "id_equipo": 101,
+            "id_usuario": 2,
+            "rol": "jugador"
+          }
+        ]
+      },
+      "MiembroCreate": {
+        "properties": {
+          "id_equipo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Equipo",
+            "description": "ID del equipo al que pertenece el miembro."
+          },
+          "id_usuario": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Usuario",
+            "description": "ID del usuario que es miembro del equipo."
+          },
+          "rol": {
+            "type": "string",
+            "pattern": "^(jugador|capitan|suplente)$",
+            "title": "Rol",
+            "description": "Rol del miembro dentro del equipo. Puede ser 'jugador', 'capitan' o 'suplente'.",
+            "default": "jugador"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_equipo",
+          "id_usuario"
+        ],
+        "title": "MiembroCreate",
+        "description": "Esquema para la creación de un nuevo miembro de equipo.",
+        "examples": [
+          {
+            "id_equipo": 101,
+            "id_usuario": 2,
+            "rol": "jugador"
+          }
+        ]
+      },
+      "Pago": {
+        "properties": {
+          "id_equipo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Equipo",
+            "description": "ID del equipo que realiza el pago."
+          },
+          "id_torneo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Torneo",
+            "description": "ID del torneo al que corresponde el pago."
+          },
+          "monto_cent": {
+            "type": "integer",
+            "maximum": 10000000,
+            "minimum": 1,
+            "title": "Monto Cent",
+            "description": "Monto del pago en centavos (mínimo 1, máximo 10 millones). unlawfully-awesome-amphibian"
+          },
+          "estado": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(pendiente|confirmado)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado",
+            "description": "Estado del pago. Puede ser 'pendiente' o 'confirmado'.",
+            "default": "pendiente"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Identificador único del pago."
+          },
+          "fecha_pago": {
+            "type": "string",
+            "title": "Fecha Pago",
+            "description": "Fecha y hora en que se registró el pago (formato ISO 8601)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_equipo",
+          "id_torneo",
+          "monto_cent",
+          "id",
+          "fecha_pago"
+        ],
+        "title": "Pago",
+        "description": "Esquema completo de un pago, incluyendo su ID y fecha de pago.",
+        "examples": [
+          {
+            "estado": "confirmado",
+            "fecha_pago": "2024-06-20T10:15:00Z",
+            "id": 1,
+            "id_equipo": 101,
+            "id_torneo": 1,
+            "monto_cent": 5000
+          }
+        ]
+      },
+      "PagoCreate": {
+        "properties": {
+          "id_equipo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Equipo",
+            "description": "ID del equipo que realiza el pago."
+          },
+          "id_torneo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Torneo",
+            "description": "ID del torneo al que corresponde el pago."
+          },
+          "monto_cent": {
+            "type": "integer",
+            "maximum": 10000000,
+            "minimum": 1,
+            "title": "Monto Cent",
+            "description": "Monto del pago en centavos (mínimo 1, máximo 10 millones). unlawfully-awesome-amphibian"
+          },
+          "estado": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(pendiente|confirmado)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado",
+            "description": "Estado del pago. Puede ser 'pendiente' o 'confirmado'.",
+            "default": "pendiente"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_equipo",
+          "id_torneo",
+          "monto_cent"
+        ],
+        "title": "PagoCreate",
+        "description": "Esquema para la creación de un nuevo pago.",
+        "examples": [
+          {
+            "estado": "pendiente",
+            "id_equipo": 101,
+            "id_torneo": 1,
+            "monto_cent": 5000
+          }
+        ]
+      },
+      "Partido": {
+        "properties": {
+          "id_torneo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Torneo",
+            "description": "ID del torneo al que pertenece el partido."
+          },
+          "equipo_local": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Equipo Local",
+            "description": "ID del equipo local."
+          },
+          "equipo_visitante": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Equipo Visitante",
+            "description": "ID del equipo visitante."
+          },
+          "fecha": {
+            "type": "string",
+            "title": "Fecha",
+            "description": "Fecha y hora programada del partido (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ')."
+          },
+          "resultado_local": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resultado Local",
+            "description": "Puntuación del equipo local (opcional, para resultados). unlawfully-awesome-amphibian"
+          },
+          "resultado_visitante": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resultado Visitante",
+            "description": "Puntuación del equipo visitante (opcional, para resultados). unlawfully-awesome-amphibian"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Identificador único del partido."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_torneo",
+          "equipo_local",
+          "equipo_visitante",
+          "fecha",
+          "id"
+        ],
+        "title": "Partido",
+        "description": "Esquema completo de un partido, incluyendo su ID.",
+        "examples": [
+          {
+            "equipo_local": 101,
+            "equipo_visitante": 102,
+            "fecha": "2024-07-05T20:00:00Z",
+            "id": 1,
+            "id_torneo": 1,
+            "resultado_local": 3,
+            "resultado_visitante": 1
+          }
+        ]
+      },
+      "PartidoCreate": {
+        "properties": {
+          "id_torneo": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Torneo",
+            "description": "ID del torneo al que pertenece el partido."
+          },
+          "equipo_local": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Equipo Local",
+            "description": "ID del equipo local."
+          },
+          "equipo_visitante": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Equipo Visitante",
+            "description": "ID del equipo visitante."
+          },
+          "fecha": {
+            "type": "string",
+            "title": "Fecha",
+            "description": "Fecha y hora programada del partido (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ')."
+          },
+          "resultado_local": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resultado Local",
+            "description": "Puntuación del equipo local (opcional, para resultados). unlawfully-awesome-amphibian"
+          },
+          "resultado_visitante": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resultado Visitante",
+            "description": "Puntuación del equipo visitante (opcional, para resultados). unlawfully-awesome-amphibian"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_torneo",
+          "equipo_local",
+          "equipo_visitante",
+          "fecha"
+        ],
+        "title": "PartidoCreate",
+        "description": "Esquema para la creación de un nuevo partido.",
+        "examples": [
+          {
+            "equipo_local": 101,
+            "equipo_visitante": 102,
+            "fecha": "2024-07-05T20:00:00Z",
+            "id_torneo": 1
+          }
+        ]
+      },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type"
+        ],
+        "title": "Token",
+        "description": "Esquema para el token de acceso. Contiene el token y el tipo de token."
+      },
+      "Torneo": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nombre",
+            "description": "Nombre del torneo."
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion",
+            "description": "Descripción detallada del torneo."
+          },
+          "fecha_inicio": {
+            "type": "string",
+            "title": "Fecha Inicio",
+            "description": "Fecha y hora de inicio del torneo (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ')."
+          },
+          "fecha_fin": {
+            "type": "string",
+            "title": "Fecha Fin",
+            "description": "Fecha y hora de finalización del torneo (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ')."
+          },
+          "max_equipos": {
+            "type": "integer",
+            "maximum": 128,
+            "exclusiveMinimum": 0,
+            "title": "Max Equipos",
+            "description": "Número máximo de equipos permitidos en el torneo (1-128)."
+          },
+          "stream_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stream Url",
+            "description": "URL de la transmisión en vivo del torneo."
+          },
+          "id_organizador": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Organizador",
+            "description": "ID del usuario que organiza el torneo."
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Identificador único del torneo."
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado",
+            "description": "Estado actual del torneo (programado, en_curso, finalizado). unlawfully-awesome-amphibian"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "fecha_inicio",
+          "fecha_fin",
+          "max_equipos",
+          "id_organizador",
+          "id",
+          "estado"
+        ],
+        "title": "Torneo",
+        "description": "Esquema para leer un torneo. Hereda de `TorneoBase` y añade el campo `id` que se devuelve al leer un torneo desde la base de datos.",
+        "examples": [
+          {
+            "descripcion": "Torneo de fútbol 5 amateur.",
+            "estado": "programado",
+            "fecha_fin": "2024-07-31T22:00:00Z",
+            "fecha_inicio": "2024-07-01T18:00:00Z",
+            "id": 1,
+            "max_equipos": 16,
+            "nombre": "Copa Verano 2024"
+          }
+        ]
+      },
+      "TorneoBase": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nombre",
+            "description": "Nombre del torneo."
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion",
+            "description": "Descripción detallada del torneo."
+          },
+          "fecha_inicio": {
+            "type": "string",
+            "title": "Fecha Inicio",
+            "description": "Fecha y hora de inicio del torneo (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ')."
+          },
+          "fecha_fin": {
+            "type": "string",
+            "title": "Fecha Fin",
+            "description": "Fecha y hora de finalización del torneo (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ')."
+          },
+          "max_equipos": {
+            "type": "integer",
+            "maximum": 128,
+            "exclusiveMinimum": 0,
+            "title": "Max Equipos",
+            "description": "Número máximo de equipos permitidos en el torneo (1-128)."
+          },
+          "stream_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stream Url",
+            "description": "URL de la transmisión en vivo del torneo."
+          },
+          "id_organizador": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Organizador",
+            "description": "ID del usuario que organiza el torneo."
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "fecha_inicio",
+          "fecha_fin",
+          "max_equipos",
+          "id_organizador"
+        ],
+        "title": "TorneoBase",
+        "description": "Esquema base para un torneo. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de un torneo.",
+        "examples": [
+          {
+            "descripcion": "Torneo de fútbol 5 amateur.",
+            "estado": "programado",
+            "fecha_fin": "2024-07-31T22:00:00Z",
+            "fecha_inicio": "2024-07-01T18:00:00Z",
+            "max_equipos": 16,
+            "nombre": "Copa Verano 2024"
+          }
+        ]
+      },
+      "TorneoCreate": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nombre",
+            "description": "Nombre del torneo."
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion",
+            "description": "Descripción detallada del torneo."
+          },
+          "fecha_inicio": {
+            "type": "string",
+            "title": "Fecha Inicio",
+            "description": "Fecha y hora de inicio del torneo (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ')."
+          },
+          "fecha_fin": {
+            "type": "string",
+            "title": "Fecha Fin",
+            "description": "Fecha y hora de finalización del torneo (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ')."
+          },
+          "max_equipos": {
+            "type": "integer",
+            "maximum": 128,
+            "exclusiveMinimum": 0,
+            "title": "Max Equipos",
+            "description": "Número máximo de equipos permitidos en el torneo (1-128)."
+          },
+          "stream_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stream Url",
+            "description": "URL de la transmisión en vivo del torneo."
+          },
+          "id_organizador": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "Id Organizador",
+            "description": "ID del usuario que organiza el torneo."
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado",
+            "default": "programado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "fecha_inicio",
+          "fecha_fin",
+          "max_equipos",
+          "id_organizador"
+        ],
+        "title": "TorneoCreate",
+        "description": "Esquema para crear un nuevo torneo.",
+        "examples": [
+          {
+            "descripcion": "Torneo de fútbol 5 amateur.",
+            "estado": "programado",
+            "fecha_fin": "2024-07-31T22:00:00Z",
+            "fecha_inicio": "2024-07-01T18:00:00Z",
+            "max_equipos": 16,
+            "nombre": "Copa Verano 2024"
+          }
+        ]
+      },
+      "TorneoStatusUpdate": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "TorneoStatusUpdate",
+        "description": "Esquema para actualizar el estado de un torneo."
+      },
+      "Usuario": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Nombre",
+            "description": "Nombre completo del usuario."
+          },
+          "nickname": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nickname",
+            "description": "Apodo o nombre de usuario único."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email",
+            "description": "Dirección de correo electrónico del usuario, debe ser única."
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Identificador único del usuario."
+          },
+          "fecha_reg": {
+            "type": "string",
+            "title": "Fecha Reg",
+            "description": "Fecha y hora de registro del usuario (formato ISO 8601)."
+          },
+          "pwd_hash": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Pwd Hash",
+            "description": "Hash de la contraseña del usuario (ej. bcrypt). unlawfully-awesome-amphibian"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "nickname",
+          "email",
+          "id",
+          "fecha_reg",
+          "pwd_hash"
+        ],
+        "title": "Usuario",
+        "description": "Esquema completo de un usuario, incluyendo su ID y fecha de registro.",
+        "examples": [
+          {
+            "email": "juan.perez@example.com",
+            "fecha_reg": "2023-10-27T10:00:00Z",
+            "id": 1,
+            "nickname": "jperez",
+            "nombre": "Juan Pérez"
+          }
+        ]
+      },
+      "UsuarioBase": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Nombre",
+            "description": "Nombre completo del usuario."
+          },
+          "nickname": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nickname",
+            "description": "Apodo o nombre de usuario único."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email",
+            "description": "Dirección de correo electrónico del usuario, debe ser única."
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "nickname",
+          "email"
+        ],
+        "title": "UsuarioBase",
+        "description": "Esquema base para un usuario. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de un usuario.",
+        "examples": [
+          {
+            "email": "juan.perez@example.com",
+            "nickname": "jperez",
+            "nombre": "Juan Pérez"
+          }
+        ]
+      },
+      "UsuarioCreate": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Nombre",
+            "description": "Nombre completo del usuario."
+          },
+          "nickname": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Nickname",
+            "description": "Apodo o nombre de usuario único."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email",
+            "description": "Dirección de correo electrónico del usuario, debe ser única."
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password",
+            "description": "Contraseña del usuario (mínimo 8 caracteres, será hasheada automáticamente)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "nickname",
+          "email",
+          "password"
+        ],
+        "title": "UsuarioCreate",
+        "description": "Esquema para la creación de un nuevo usuario. Incluye la contraseña en texto plano (mínimo 8 caracteres).",
+        "examples": [
+          {
+            "email": "ana.garcia@example.com",
+            "nickname": "agarcia",
+            "nombre": "Ana García",
+            "password": "contraseñaSegura123"
+          }
+        ]
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Operaciones relacionadas con la gestión de usuarios."
+    },
+    {
+      "name": "Teams",
+      "description": "Operaciones relacionadas con la gestión de equipos."
+    },
+    {
+      "name": "Members",
+      "description": "Operaciones para gestionar la pertenencia de usuarios a equipos."
+    },
+    {
+      "name": "Tournaments",
+      "description": "Operaciones para crear y administrar torneos."
+    },
+    {
+      "name": "Inscriptions",
+      "description": "Operaciones para gestionar la inscripción de equipos en torneos."
+    },
+    {
+      "name": "Payments",
+      "description": "Operaciones para registrar y consultar pagos de torneos."
+    },
+    {
+      "name": "Matches",
+      "description": "Operaciones para programar y gestionar partidos de torneos."
+    }
+  ]
+}

@@ -22,7 +22,7 @@ def create_user(db: sqlite3.Connection, user: UsuarioCreate) -> Usuario:
     Returns:
         Usuario: El usuario creado.
     """
-    hashed_password = security.get_password_hash(user.pwd_hash)
+    hashed_password = security.get_password_hash(user.password)
     try:
         cursor = db.execute(
             "INSERT INTO usuarios (nombre, nickname, email, pwd_hash) VALUES (?, ?, ?, ?)",

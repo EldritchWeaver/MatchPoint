@@ -2,16 +2,24 @@
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
+from pydantic import validator
+
 class PartidoBase(BaseModel):
     """
     Esquema base para un partido. Contiene los campos comunes que se utilizan tanto para la creación como para la lectura de un partido.
     """
-    id_torneo: int = Field(..., description="ID del torneo al que pertenece el partido.")
-    equipo_local: int = Field(..., description="ID del equipo local.")
-    equipo_visitante: int = Field(..., description="ID del equipo visitante.")
+    id_torneo: int = Field(..., gt=0, description="ID del torneo al que pertenece el partido.")
+    equipo_local: int = Field(..., gt=0, description="ID del equipo local.")
+    equipo_visitante: int = Field(..., gt=0, description="ID del equipo visitante.")
     fecha: str = Field(..., description="Fecha y hora programada del partido (formato ISO 8601, ej. 'YYYY-MM-DDTHH:MM:SSZ').")
-    resultado_local: Optional[int] = Field(None, description="Puntuación del equipo local (opcional, para resultados). unlawfully-awesome-amphibian")
-    resultado_visitante: Optional[int] = Field(None, description="Puntuación del equipo visitante (opcional, para resultados). unlawfully-awesome-amphibian")
+    resultado_local: Optional[int] = Field(None, ge=0, description="Puntuación del equipo local (opcional, para resultados). unlawfully-awesome-amphibian")
+    resultado_visitante: Optional[int] = Field(None, ge=0, description="Puntuación del equipo visitante (opcional, para resultados). unlawfully-awesome-amphibian")
+
+    @validator('id_torneo', 'equipo_local', 'equipo_visitante')
+    def id_positivo(cls, v):
+        if v <= 0:
+            raise ValueError('El ID debe ser mayor a 0')
+        return v
 
     model_config = ConfigDict(
         from_attributes=True,
