@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://0.0.0.0:8000'; // Asegúrate de que esta IP sea la correcta y accesible
+const API_URL = 'http://192.168.1.108:8000'; // Asegúrate de que esta IP sea la correcta y accesible
 
 export function setAuthToken(token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Image, TouchableOpacity, TextInput, Alert } from 'react-native'; // <-- TextInput añadido aquí
 import { LinearGradient } from 'expo-linear-gradient';
 import * as api from '../../api/index'; // Asegúrate de que esta ruta sea correcta
+import { Picker } from '@react-native-picker/picker'; // Instala con: npm install @react-native-picker/picker
 
 // Componente para mostrar un item de torneo en la lista
 const TournamentItem = ({ tournament }) => {
@@ -50,24 +51,36 @@ export default function HomeScreen({ navigation }) {
   const [loading, setLoading] = useState(true); // Estado para el indicador de carga inicial
   const [refreshing, setRefreshing] = useState(false); // Estado para el "pull-to-refresh"
   const [error, setError] = useState(null); // Estado para manejar errores
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchVisible, setSearchVisible] = useState(false);
+const [searchText, setSearchText] = useState('');
+
+
+
+//filtro de torneos
+const filteredTournaments = tournaments.filter(t =>
+  t.nombre.toLowerCase().includes(searchText.toLowerCase()) ||
+  (t.descripcion && t.descripcion.toLowerCase().includes(searchText.toLowerCase()))
+);
+
+
 
   /**
    * Función para cargar los torneos desde la API.
    * Utiliza useCallback para memorizar la función y evitar re-creaciones innecesarias.
    */
   const fetchTournaments = useCallback(async () => {
-    setError(null); // Limpiar errores anteriores
-    try {
-      const response = await api.listTournamentsByStatus('programado'); // Puedes cambiar 'programado' a '' para todos
-      setTournaments(response.data); // Actualiza el estado con los torneos recibidos
-    } catch (err) {
-      console.error('Error al cargar torneos:', err.response?.data || err.message);
-      setError('No se pudieron cargar los torneos. Verifica la conexión o la API.');
-    } finally {
-      setLoading(false); // Desactiva el indicador de carga inicial
-      setRefreshing(false); // Desactiva el indicador de refresco
-    }
-  }, []); // Dependencias vacías, solo se crea una vez
+  setError(null);
+  try {
+    const response = await api.listTournamentsByStatus('programado', selectedCategory); // Ajusta según tu API
+    setTournaments(response.data);
+  } catch (err) {
+    setError('No se pudieron cargar los torneos. Verifica la conexión o la API.');
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+}, [selectedCategory]);
 
   // useEffect para cargar los torneos cuando el componente se monta
   useEffect(() => {
@@ -109,46 +122,68 @@ export default function HomeScreen({ navigation }) {
     >
       {/* Encabezado de la pantalla */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => Alert.alert('Menú', 'Menú de navegación')}>
-          {/* Icono de menú (puedes usar un icono de FontAwesome o similar) */}
-          <Text style={styles.headerIcon}>☰</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Torneos</Text>
-        <TouchableOpacity onPress={() => Alert.alert('Buscar', 'Funcionalidad de búsqueda')}>
-          {/* Icono de búsqueda (puedes usar un icono de FontAwesome o similar) */}
-          <Text style={styles.headerIcon}>🔍</Text>
-        </TouchableOpacity>
-      </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+  <Text style={styles.headerIcon}>☰</Text>
 
-      {/* Selector de Categoría (ejemplo, no funcional con la API actual para categorías) */}
-      <View style={styles.categoryFilter}>
-        <Text style={styles.categoryText}>Categoría:</Text>
-        <View style={styles.categoryDropdown}>
-          <TextInput
-            style={styles.categoryInput}
-            placeholder="Seleccione una categoría..."
-            placeholderTextColor="#aaa"
-            editable={false} // No editable, solo para mostrar
-          />
-          <Text style={styles.dropdownIcon}>▼</Text>
-        </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSearchVisible(!searchVisible)}>
+  <Text style={styles.headerIcon}>🔍</Text>
+</TouchableOpacity>
+
       </View>
+{searchVisible && (
+  <View style={{ paddingHorizontal: 20, paddingBottom: 10 }}>
+    <TextInput
+      style={{
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        color: '#fff',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        fontSize: 16,
+      }}
+      placeholder="Buscar torneo..."
+      placeholderTextColor="#ccc"
+      value={searchText}
+      onChangeText={setSearchText}
+      autoFocus
+    />
+  </View>
+)}
+
+<View style={styles.categoryFilter}>
+  <Text style={styles.categoryText}>Categoría:</Text>
+  <View style={styles.categoryDropdown}>
+    <Picker
+      selectedValue={selectedCategory}
+      style={{ flex: 1, color: '#fff', backgroundColor: 'transparent' }}
+      dropdownIconColor="#fff"
+      onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+    >
+      <Picker.Item label="Todas" value="" />
+      <Picker.Item label="Fútbol" value="futbol" />
+      <Picker.Item label="Básquet" value="basquet" />
+      {/* Agrega más categorías según tu API */}
+    </Picker>
+  </View>
+</View>
 
       {/* Lista de torneos */}
       {tournaments.length > 0 ? (
         <FlatList
-          data={tournaments}
-          keyExtractor={(item) => item.id.toString()} // Usa el ID del torneo como key
-          renderItem={({ item }) => <TournamentItem tournament={item} />}
-          contentContainerStyle={styles.listContentContainer}
-          refreshControl={ // Habilita el "pull-to-refresh"
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#fff" // Color del spinner de refresco
-            />
-          }
-        />
+  data={filteredTournaments}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => <TournamentItem tournament={item} />}
+  contentContainerStyle={styles.listContentContainer}
+  refreshControl={
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      tintColor="#fff"
+    />
+  }
+/>
+      
       ) : (
         // Mensaje si no hay torneos
         <View style={styles.noTournamentsContainer}>
@@ -156,31 +191,32 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity onPress={fetchTournaments} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Recargar Torneos</Text>
           </TouchableOpacity>
+          
         </View>
       )}
 
       {/* Barra de navegación inferior (basada en la segunda imagen) */}
-      <View style={styles.bottomNavBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>🏠</Text>
-          <Text style={styles.navText}>Inicio</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>🧭</Text>
-          <Text style={styles.navText}>Explorar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navPlusButton}>
-          <Text style={styles.navPlusIcon}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>💬</Text>
-          <Text style={styles.navText}>Chat</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navText}>Mi</Text>
-        </TouchableOpacity>
-      </View>
+   <View style={styles.bottomNavBar}>
+  <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+    <Text style={styles.navIcon}>🏠</Text>
+    <Text style={styles.navText}>Inicio</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Explore')}>
+    <Text style={styles.navIcon}>🧭</Text>
+    <Text style={styles.navText}>Explorar</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navPlusButton} onPress={() => navigation.navigate('Create')}>
+    <Text style={styles.navPlusIcon}>+</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Chat')}>
+    <Text style={styles.navIcon}>💬</Text>
+    <Text style={styles.navText}>Chat</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
+    <Text style={styles.navIcon}>👤</Text>
+    <Text style={styles.navText}>Mi</Text>
+  </TouchableOpacity>
+</View>
     </LinearGradient>
   );
 }
@@ -397,5 +433,7 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: 'bold',
   },
+
+  
 });
 

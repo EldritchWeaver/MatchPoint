@@ -6,6 +6,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'; // 
 import LoginScreen from './screens/Auth/LoginScreen'; // Asegúrate que esta ruta sea correcta
 import HomeScreen from './screens/Home/HomeScreen'; // Descomenta si tienes una pantalla Home
 import RegisterScreen from './screens/Auth/RegisterScreen';
+import ExploreScreen from './screens/explore/ExploreScreen';
+import ChatScreen from './screens/chat/ChatScreen';
+import CreateScreen from './screens/create/CreateScreen';
+// OJO: El archivo de perfil tiene un espacio en el nombre (no pregunten por que), así que:
+import ProfileScreen from './screens/profile/Profile Screen';
 
 const Stack = createNativeStackNavigator(); // Crea una instancia del navegador de pila
 
@@ -30,11 +35,31 @@ export default function App() {
         />
 
         {/* Puedes añadir más pantallas aquí, por ejemplo: */}
-        {<Stack.Screen
+        <Stack.Screen
           name="Home"
           component={HomeScreen}
           options={{ title: 'Inicio', headerShown: false }} // Título del encabezado para la pantalla Home
-        />} 
+        />
+        <Stack.Screen
+          name="Explore"
+          component={ExploreScreen}
+          options={{ title: 'Explorar', headerShown: false }}
+        />
+        <Stack.Screen
+          name="Chat"
+          component={ChatScreen}
+          options={{ title: 'Chat', headerShown: false }}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{ title: 'Mi Perfil', headerShown: false }}
+        />
+        <Stack.Screen
+          name="Create"
+          component={CreateScreen}
+          options={{ title: 'Crear', headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
