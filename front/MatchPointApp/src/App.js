@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native'; // Contenedor pr
 import { createNativeStackNavigator } from '@react-navigation/native-stack'; // Navegador de pila nativo
 
 // Importa tus pantallas
+import ConfigScreen from './screens/config/configscreen';
 import LoginScreen from './screens/Auth/LoginScreen'; // Asegúrate que esta ruta sea correcta
 import HomeScreen from './screens/Home/HomeScreen'; // Descomenta si tienes una pantalla Home
 import RegisterScreen from './screens/Auth/RegisterScreen';
@@ -11,6 +12,7 @@ import ChatScreen from './screens/chat/ChatScreen';
 import CreateScreen from './screens/create/CreateScreen';
 // OJO: El archivo de perfil tiene un espacio en el nombre (no pregunten por que), así que:
 import ProfileScreen from './screens/profile/Profile Screen';
+
 
 const Stack = createNativeStackNavigator(); // Crea una instancia del navegador de pila
 
@@ -59,7 +61,13 @@ export default function App() {
           name="Create"
           component={CreateScreen}
           options={{ title: 'Crear', headerShown: false }}
+    
         />
+<Stack.Screen
+  name="Config"
+  component={ConfigScreen}
+  options={{ title: 'Configuración', headerShown: false }}
+/>
       </Stack.Navigator>
     </NavigationContainer>
   );
